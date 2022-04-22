@@ -3,6 +3,13 @@
 
 #include <Arduino.h>
 #include "GoodixStructs.h"
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#include <i2c_t3.h>
+#else
+#include <Wire.h>
+//#include <i2c_driver.h>
+//#include <i2c_driver_wire.h>
+#endif
 
 #define GOODIX_OK   0
 
@@ -97,11 +104,11 @@ class Goodix {
     struct GTInfo info;
     uint8_t points[GOODIX_MAX_CONTACTS*GOODIX_CONTACT_SIZE]; //points buffer
 
-    Goodix();
+    Goodix(uint8_t interruptPin, uint8_t resetPin, uint8_t addr=GOODIX_I2C_ADDR_BA);
 
     void setHandler(void (*handler)(int8_t, GTPoint*));
 
-    bool begin(uint8_t interruptPin, uint8_t resetPin, uint8_t addr=GOODIX_I2C_ADDR_BA);
+    bool begin();
     bool reset();
     uint8_t test();
     void loop();
@@ -113,11 +120,12 @@ class Goodix {
     uint8_t calcChecksum(uint8_t* buf, uint8_t len);
     uint8_t readChecksum();
 
-    uint8_t fwResolution(uint16_t maxX, uint16_t maxY);
+    void fwResolution(uint16_t maxX, uint16_t maxY);
     
     GTConfig* readConfig();
     GTInfo* readInfo();
-
+    uint8_t readConfigVersion();
+    
     uint8_t productID(char *buf);
 
     int16_t readInput(uint8_t *data);
@@ -132,22 +140,12 @@ class Goodix {
     void onIRQ();
 
     //--- utils ---
-    void usSleep(uint16_t microseconds);
-    void msSleep(uint16_t milliseconds);
-
-    void pinIn(uint8_t pin);
-    void pinOut(uint8_t pin);
-    void pinSet(uint8_t pin, uint8_t level);
-
-    // Used with pulled-up lines, set pin mode to out, write LOW
-    void pinHold(uint8_t pin);
-
-    // Check pin level
-    bool pinCheck(uint8_t pin, uint8_t level);
-
     void i2cStart(uint16_t reg);
     void i2cRestart();
     uint8_t i2cStop();
+    
+    uint8_t previousPoints[GOODIX_MAX_CONTACTS*GOODIX_CONTACT_SIZE];
+    uint8_t previousContacts;
 };
 
 #endif

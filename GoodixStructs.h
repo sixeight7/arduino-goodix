@@ -1,4 +1,7 @@
-typedef struct GTInfo {
+#ifndef _GOODIX_STRUCTS_H_
+#define _GOODIX_STRUCTS_H_
+
+struct GTInfo {
   // 0x8140-0x814A 
   char productId[4];
   uint16_t fwId;
@@ -10,9 +13,12 @@ typedef struct GTInfo {
 struct GTPoint {
   // 0x814F-0x8156, ... 0x8176 (5 points) 
   uint8_t trackId;
-  uint16_t x;
-  uint16_t y;
-  uint16_t area;
+  uint8_t x_lsb;
+  uint8_t x_msb;
+  uint8_t y_lsb;
+  uint8_t y_msb;
+  uint8_t area_lsb;
+  uint8_t area_msb;
   uint8_t reserved;
 };
 
@@ -117,3 +123,4 @@ struct GTConfig {
   
 };
 
+#endif
